@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zimbra CRM — Ventas</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="title">Zimbra CRM — Ventas</div>
+        <div class="subtitle">Propuestas, cierres y ventas registradas</div>
+    </header>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/prospectos.html">Prospectos</a>
+        <a href="/ventas.html" class="active">Ventas</a>
+        <a href="/datos.html">Datos</a>
+        <a href="/automatizacion.html">Automatización</a>
+        <a href="/docs" target="_blank">API ↗</a>
+    </nav>
+
+    <main>
+        <h1>Ventas</h1>
+        <div class="info-panel">
+            <strong>¿Cómo se gestionan las ventas?</strong>
+            <ul>
+                <li><strong>📋 Propuestas pendientes</strong> — ofertas enviadas a los prospectos esperando respuesta. <em>Acción:</em> click sobre una tarjeta para cerrar la venta. Las propuestas se crean desde la página de <a href="/prospectos.html" style="color:var(--primary-dark);">Prospectos</a> con el botón <strong>+ Propuesta</strong>.</li>
+                <li><strong>💰 Ventas cerradas</strong> — registros de venta con monto, método de pago y estado (Pagada / Pendiente / Anulada). <em>Acción:</em> botón <strong>Anular</strong> para revertir una venta.</li>
+            </ul>
+            <strong>¿Cómo se cierra una venta?</strong>
+            Click sobre una propuesta <strong>Pendiente</strong> → confirmar método de pago → el sistema ejecuta una sola transacción que <em>acepta la propuesta, crea el cliente, marca al prospecto como Convertido y registra la venta</em>. Si algún paso falla, se revierte todo (ROLLBACK) y nada cambia.
+        </div>
+
+        <div class="pipeline-grid pipeline-2col">
+            <div class="pipeline-col">
+                <div class="pipeline-col-header">
+                    <span>📋 Propuestas pendientes</span>
+                    <span class="count" id="count-pendientes">0</span>
+                </div>
+                <div class="pipeline-col-value" id="value-pendientes">$0</div>
+                <div id="col-pendientes"></div>
+            </div>
+            <div class="pipeline-col cerradas">
+                <div class="pipeline-col-header">
+                    <span>💰 Ventas cerradas</span>
+                    <span class="count" id="count-cerradas">0</span>
+                </div>
+                <div class="pipeline-col-value" id="value-cerradas">$0 facturados</div>
+                <div id="col-cerradas"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: anular venta (puede terminar en ROLLBACK si ya estaba anulada) -->
+    <div class="modal-overlay" id="modal-anular">
+        <div class="modal">
+            <h2>Anular venta</h2>
+            <p>
+                Vas a anular la venta <strong id="modal-anular-id">—</strong>
+                por <strong id="modal-anular-monto">—</strong>.
+            </p>
+            <p class="muted mb-1">
+                El backend ejecuta una transacción:
+                <code>BEGIN → verificar estado → UPDATE estado='Anulada' → COMMIT</code>.
+                Si la venta ya estaba anulada, se hace
+                <strong>ROLLBACK</strong> por regla de negocio y nada cambia.
+            </p>
+            <div id="modal-resultado-anular"></div>
+            <div class="modal-actions">
+                <button class="btn muted-btn" id="btn-cancelar-anular">Cancelar</button>
+                <button class="btn danger" id="btn-confirmar-anular">Anular venta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: cierre de venta -->
+    <div class="modal-overlay" id="modal-cerrar">
+        <div class="modal">
+            <h2>Cerrar venta</h2>
+            <p>
+                Vas a cerrar la propuesta <strong id="modal-prop-id">—</strong>
+                de <strong id="modal-prop-prospecto">—</strong>
+                por <strong id="modal-prop-valor">—</strong>.
+            </p>
+            <p class="muted mb-1">
+                El backend ejecutará la transacción:
+                <code>BEGIN → aceptar propuesta → SAVEPOINT crear cliente → convertir prospecto → registrar venta → COMMIT</code>.
+            </p>
+
+            <div class="mb-1">
+                <label>Método de pago</label>
+                <select id="modal-metodo-pago" style="width: 100%;">
+                    <option>Transferencia</option>
+                    <option>Tarjeta</option>
+                    <option>PayPal</option>
+                    <option>Efectivo</option>
+                </select>
+            </div>
+            <div id="modal-resultado-venta"></div>
+            <div class="modal-actions">
+                <button class="btn muted-btn" id="btn-cancelar-venta">Cancelar</button>
+                <button class="btn green" id="btn-confirmar-venta">Cerrar venta</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div>Asignatura: <strong>Sistemas Transaccionales de Bases de Datos</strong> · Docente: <strong>Ladi Paola Ballen Carrasco</strong></div>
+        <div class="team">Equipo: Hayder Esteban Barrera Pérez · Julian Mateo Artunduaga Gomez · Valery Tatiana Pamplona Gómez</div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/ventas.js"></script>
+</body>
+</html>

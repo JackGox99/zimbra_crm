@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zimbra CRM — Inicio</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="title">Zimbra CRM</div>
+        <div class="subtitle">Plataforma comercial — Gestión de prospectos, propuestas y ventas</div>
+    </header>
+    <nav>
+        <a href="/" class="active">Inicio</a>
+        <a href="/prospectos.html">Prospectos</a>
+        <a href="/ventas.html">Ventas</a>
+        <a href="/datos.html">Datos</a>
+        <a href="/automatizacion.html">Automatización</a>
+        <a href="/docs" target="_blank">API ↗</a>
+    </nav>
+
+    <main>
+        <h1>Resumen ejecutivo</h1>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="label">Negocios en curso</div>
+                <div class="value" id="kpi-pipeline">—</div>
+                <div class="sub"><span id="kpi-pipeline-count">—</span> propuestas pendientes</div>
+            </div>
+            <div class="card green">
+                <div class="label">Ingresos cerrados</div>
+                <div class="value" id="kpi-ingresos">—</div>
+                <div class="sub"><span id="kpi-ventas-count">—</span> ventas pagadas</div>
+            </div>
+            <div class="card">
+                <div class="label">Tasa de conversión</div>
+                <div class="value" id="kpi-conversion">—</div>
+                <div class="sub">Prospectos → Clientes</div>
+            </div>
+            <div class="card yellow">
+                <div class="label">Prospectos por contactar</div>
+                <div class="value" id="kpi-leads-calientes">—</div>
+                <div class="sub">Calificados que aún no tienen propuesta</div>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <section>
+                <div class="section-header">
+                    <h2>Propuestas pendientes</h2>
+                    <a href="/ventas.html" class="section-link">Ver todas →</a>
+                </div>
+                <p class="muted" style="font-size:0.82rem; margin-bottom:0.6rem;">
+                    Las 5 propuestas con mayor valor que están esperando respuesta del prospecto.
+                </p>
+                <div id="pipeline-preview"></div>
+            </section>
+            <section>
+                <div class="section-header">
+                    <h2>Actividad reciente</h2>
+                </div>
+                <p class="muted" style="font-size:0.82rem; margin-bottom:0.6rem;">
+                    Últimas interacciones de marketing (📊) y ventas (💰) registradas en el sistema.
+                </p>
+                <div class="card" style="padding: 0.3rem 1rem;">
+                    <ul class="timeline" id="activity-feed"></ul>
+                </div>
+            </section>
+        </div>
+
+        <div class="section-header" style="margin-top: 1.5rem;">
+            <h2>Requieren tu atención</h2>
+        </div>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-title">⏰ Trials por vencer</div>
+                <div class="action-count" id="action-trials">—</div>
+                <div class="action-desc">Prospectos cuyo periodo de prueba termina en los próximos 7 días</div>
+            </div>
+            <div class="action-card danger">
+                <div class="action-title">🔥 Prospectos por contactar</div>
+                <div class="action-count" id="action-hot">—</div>
+                <div class="action-desc">Prospectos calificados que aún no tienen propuesta enviada</div>
+            </div>
+            <div class="action-card info">
+                <div class="action-title">📋 Propuestas pendientes</div>
+                <div class="action-count" id="action-pendientes">—</div>
+                <div class="action-desc">Propuestas esperando respuesta del prospecto</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div>Asignatura: <strong>Sistemas Transaccionales de Bases de Datos</strong> · Docente: <strong>Ladi Paola Ballen Carrasco</strong></div>
+        <div class="team">Equipo: Hayder Esteban Barrera Pérez · Julian Mateo Artunduaga Gomez · Valery Tatiana Pamplona Gómez</div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/index.js"></script>
+</body>
+</html>

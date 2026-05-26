@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zimbra CRM — Explorador de datos</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .data-toolbar {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .data-toolbar .data-search {
+            flex: 1;
+            min-width: 240px;
+        }
+        .data-table { font-size: 0.88rem; }
+        .data-table th { white-space: nowrap; }
+        .data-table td {
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .data-table td.expand {
+            white-space: normal;
+            max-width: 360px;
+        }
+        .data-count {
+            color: var(--text-light);
+            font-size: 0.88rem;
+        }
+        .data-count strong { color: var(--text-dark); }
+        .json-cell {
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.78rem;
+            color: var(--text-mid);
+            background: var(--bg);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title">Zimbra CRM — Explorador de datos</div>
+        <div class="subtitle">Consulta el contenido de las 9 tablas del sistema</div>
+    </header>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/prospectos.html">Prospectos</a>
+        <a href="/ventas.html">Ventas</a>
+        <a href="/datos.html" class="active">Datos</a>
+        <a href="/automatizacion.html">Automatización</a>
+        <a href="/docs" target="_blank">API ↗</a>
+    </nav>
+
+    <main>
+        <h1>Contenido de las tablas</h1>
+        <div class="info-panel">
+            <strong>¿Qué hay en cada tabla?</strong>
+            Selecciona una tabla abajo para ver sus registros. Cada chip
+            consume el endpoint REST correspondiente del backend
+            (<code>/api/&lt;recurso&gt;</code>). Usa el buscador para filtrar
+            por cualquier columna visible.
+        </div>
+
+        <div class="chips" id="tabs"></div>
+
+        <div class="data-toolbar">
+            <div class="data-search">
+                <input type="text" id="search" placeholder="Buscar en las columnas visibles…" style="width: 100%;">
+            </div>
+            <div class="data-count" id="count">—</div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead id="thead"></thead>
+                <tbody id="tbody">
+                    <tr><td class="muted text-center">Selecciona una tabla.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <div>Asignatura: <strong>Sistemas Transaccionales de Bases de Datos</strong> · Docente: <strong>Ladi Paola Ballen Carrasco</strong></div>
+        <div class="team">Equipo: Hayder Esteban Barrera Pérez · Julian Mateo Artunduaga Gomez · Valery Tatiana Pamplona Gómez</div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/datos.js"></script>
+</body>
+</html>

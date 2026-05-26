@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zimbra CRM — Prospectos</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="title">Zimbra CRM — Prospectos</div>
+        <div class="subtitle">Gestión y seguimiento de prospectos comerciales</div>
+    </header>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/prospectos.html" class="active">Prospectos</a>
+        <a href="/ventas.html">Ventas</a>
+        <a href="/datos.html">Datos</a>
+        <a href="/automatizacion.html">Automatización</a>
+        <a href="/docs" target="_blank">API ↗</a>
+    </nav>
+
+    <main>
+        <h1>Prospectos en seguimiento</h1>
+        <div class="info-panel">
+            <strong>¿Cómo se gestiona un prospecto?</strong>
+            <ul>
+                <li><strong>+ Interacción</strong> — registra una acción del prospecto (abrió un correo, hizo click en un enlace, visitó la página de precios, descargó la prueba gratuita…). Cada acción suma puntos a su nivel de interés. Cuando llega a 15 puntos, el prospecto pasa automáticamente al estado <strong>Calificado</strong>.</li>
+                <li><strong>+ Propuesta</strong> — disponible solo para prospectos <strong>Calificados</strong> o <strong>Contactados</strong>. Crea una propuesta comercial con descripción y valor. La propuesta queda en estado <strong>Pendiente</strong> y aparece en la página de Ventas para que el comercial pueda cerrarla.</li>
+                <li><strong>Descalificar</strong> — marca al prospecto como <strong>Inadecuado</strong> cuando no encaja con el perfil comercial (por ejemplo, empresas demasiado pequeñas para el producto). Pone su puntaje en 0 y lo retira de la lista de seguimiento.</li>
+                <li><em>Sin acciones disponibles</em> — el prospecto ya terminó su proceso: o ya es cliente (<strong>Convertido</strong>) o fue descartado (<strong>Inadecuado</strong>).</li>
+            </ul>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Buscar por nombre, correo o empresa…">
+        </div>
+
+        <div class="chips" id="chips">
+            <div class="chip active" data-estado="">Todos</div>
+            <div class="chip" data-estado="Pendiente">Pendientes</div>
+            <div class="chip" data-estado="Contactado">Contactados</div>
+            <div class="chip" data-estado="Calificado">Calificados</div>
+            <div class="chip" data-estado="Convertido">Convertidos</div>
+            <div class="chip" data-estado="Inadecuado">Inadecuados</div>
+        </div>
+
+        <div class="muted mb-1" id="count" style="font-size: 0.88rem;">—</div>
+
+        <div id="leads-list"></div>
+    </main>
+
+    <!-- Modal: crear propuesta comercial -->
+    <div class="modal-overlay" id="modal-propuesta">
+        <div class="modal">
+            <h2>Crear propuesta comercial</h2>
+            <p class="muted mb-1">
+                Prospecto: <strong id="modal-propuesta-prospecto">—</strong>
+            </p>
+            <div class="mb-1">
+                <label>Descripción de la propuesta</label>
+                <textarea id="modal-propuesta-desc" rows="3" style="width: 100%; font: inherit;"
+                    placeholder="Ej: Licenciamiento Zimbra Enterprise — 50 usuarios + soporte premium 12 meses"></textarea>
+            </div>
+            <div class="mb-1">
+                <label>Valor estimado (COP)</label>
+                <input type="number" id="modal-propuesta-valor" min="0" step="100000"
+                    value="5000000" style="width: 100%;">
+            </div>
+            <div id="modal-resultado-propuesta"></div>
+            <div class="modal-actions">
+                <button class="btn muted-btn" id="btn-cancelar-propuesta">Cancelar</button>
+                <button class="btn green" id="btn-confirmar-propuesta">Crear propuesta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: registrar interacción -->
+    <div class="modal-overlay" id="modal-interaccion">
+        <div class="modal">
+            <h2>Registrar interacción</h2>
+            <p class="muted mb-1">
+                Prospecto: <strong id="modal-prospecto-nombre">—</strong>
+            </p>
+            <div class="mb-1">
+                <label>Acción de marketing</label>
+                <select id="modal-accion" style="width: 100%;">
+                    <option value="Apertura Correo|2">Apertura Correo (+2)</option>
+                    <option value="Click Enlace|3">Click Enlace (+3)</option>
+                    <option value="Registro Formulario|4">Registro Formulario (+4)</option>
+                    <option value="Visita Pagina Precios|5">Visita Página Precios (+5)</option>
+                    <option value="Asistencia Webinar|6">Asistencia Webinar (+6)</option>
+                    <option value="Solicitud Demo|8">Solicitud Demo (+8)</option>
+                    <option value="Descarga Prueba|10">Descarga Prueba (+10)</option>
+                </select>
+            </div>
+            <div class="mb-1">
+                <label>Campaña (ID)</label>
+                <input type="number" id="modal-campana" value="1" min="1" style="width: 100%;">
+            </div>
+            <div id="modal-resultado-interaccion"></div>
+            <div class="modal-actions">
+                <button class="btn muted-btn" id="btn-cancelar-interaccion">Cancelar</button>
+                <button class="btn green" id="btn-registrar-interaccion">Registrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div>Asignatura: <strong>Sistemas Transaccionales de Bases de Datos</strong> · Docente: <strong>Ladi Paola Ballen Carrasco</strong></div>
+        <div class="team">Equipo: Hayder Esteban Barrera Pérez · Julian Mateo Artunduaga Gomez · Valery Tatiana Pamplona Gómez</div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/prospectos.js"></script>
+</body>
+</html>

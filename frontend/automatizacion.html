@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zimbra CRM — Automatización</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="title">Zimbra CRM — Automatización</div>
+        <div class="subtitle">Triggers, procedimientos almacenados y funciones UDF en acción</div>
+    </header>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/prospectos.html">Prospectos</a>
+        <a href="/ventas.html">Ventas</a>
+        <a href="/datos.html">Datos</a>
+        <a href="/automatizacion.html" class="active">Automatización</a>
+        <a href="/docs" target="_blank">API ↗</a>
+    </nav>
+
+    <main>
+        <h1>Lógica avanzada en la base de datos</h1>
+        <div class="info-panel">
+            <strong>¿Qué hay en esta página?</strong>
+            Cada tarjeta de abajo ejecuta un objeto de base de datos creado en la
+            <strong>Sesión 3</strong>: un trigger, un procedimiento almacenado o una función UDF.
+            El objetivo es que la lógica del CRM viva donde corresponde — en la BD —
+            y que la aplicación solo orqueste.
+            <ul>
+                <li><strong>Triggers</strong> — se disparan solos cuando los datos cambian. Ejemplo: cada interacción nueva actualiza el scoring del prospecto.</li>
+                <li><strong>Procedimientos almacenados</strong> — encapsulan operaciones complejas (reporte mensual, extensión de trial, limpieza de vencidos).</li>
+                <li><strong>Funciones UDF</strong> — cálculos reutilizables (nivel de interés, días restantes de trial, lifetime value).</li>
+            </ul>
+        </div>
+
+        <!-- =================================================== -->
+        <!-- PROCEDIMIENTOS ALMACENADOS -->
+        <!-- =================================================== -->
+        <h2 style="margin-top: 1.5rem;">📦 Procedimientos almacenados</h2>
+
+        <div class="two-col">
+            <section>
+                <div class="card">
+                    <div class="label">SP — sp_reporte_mensual_ventas</div>
+                    <div class="value" style="font-size: 1.05rem; margin: 0.5rem 0;">Reporte mensual de ventas</div>
+                    <p class="muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+                        Totaliza ventas pagadas del periodo, identifica la campaña con mayor
+                        facturación y persiste el resultado en la tabla REPORTE.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                        <div>
+                            <label>Año</label>
+                            <input type="number" id="rep-anio" value="2026" min="2020" max="2099" style="width: 90px;">
+                        </div>
+                        <div>
+                            <label>Mes</label>
+                            <input type="number" id="rep-mes" value="5" min="1" max="12" style="width: 70px;">
+                        </div>
+                        <button class="btn" id="btn-reporte-mensual">Generar reporte</button>
+                    </div>
+                    <div id="result-reporte"></div>
+                </div>
+            </section>
+
+            <section>
+                <div class="card">
+                    <div class="label">SP — sp_marcar_trials_vencidos</div>
+                    <div class="value" style="font-size: 1.05rem; margin: 0.5rem 0;">Limpieza de trials vencidos</div>
+                    <p class="muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+                        Recorre todos los prospectos cuyo trial terminó y todavía no son clientes.
+                        Los marca <code>Inadecuado</code>. Los triggers BEFORE UPDATE y de auditoría
+                        se disparan en cadena.
+                    </p>
+                    <button class="btn danger" id="btn-limpiar-trials">Ejecutar limpieza</button>
+                    <div id="result-limpieza"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- =================================================== -->
+        <!-- FUNCIONES UDF -->
+        <!-- =================================================== -->
+        <h2 style="margin-top: 1.5rem;">🧮 Funciones UDF</h2>
+
+        <div class="two-col">
+            <section>
+                <div class="card">
+                    <div class="label">UDF — fn_nivel_interes</div>
+                    <div class="value" style="font-size: 1.05rem; margin: 0.5rem 0;">Nivel de interés</div>
+                    <p class="muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+                        Convierte el scoring numérico en etiqueta cualitativa
+                        (<code>Alto</code> / <code>Medio</code> / <code>Bajo</code>).
+                        La regla vive una sola vez, en la BD.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                        <div>
+                            <label>Puntuación</label>
+                            <input type="number" id="udf-puntuacion" value="12" min="0" style="width: 110px;">
+                        </div>
+                        <button class="btn" id="btn-nivel-interes">Consultar UDF</button>
+                    </div>
+                    <div id="result-nivel-interes" style="margin-top: 0.75rem;"></div>
+                </div>
+            </section>
+
+            <section>
+                <div class="card">
+                    <div class="label">UDF — fn_dias_restantes_trial</div>
+                    <div class="value" style="font-size: 1.05rem; margin: 0.5rem 0;">Días restantes de trial</div>
+                    <p class="muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+                        Calcula los días que le quedan al periodo de prueba del prospecto.
+                        Negativo si ya venció, NULL si no tiene trial activo.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                        <div>
+                            <label>ID Prospecto</label>
+                            <input type="number" id="udf-id-prospecto" value="3" min="1" style="width: 110px;">
+                        </div>
+                        <button class="btn" id="btn-dias-restantes">Consultar UDF</button>
+                    </div>
+                    <div id="result-dias-restantes" style="margin-top: 0.75rem;"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="card mt-1">
+            <div class="label">UDF — fn_lifetime_value</div>
+            <div class="value" style="font-size: 1.05rem; margin: 0.5rem 0;">Lifetime Value del cliente</div>
+            <p class="muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+                Suma todo lo que el cliente ha pagado (ventas en estado <code>Pagada</code>).
+                Útil para priorizar upsell y renovaciones.
+            </p>
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                <div>
+                    <label>ID Cliente</label>
+                    <input type="number" id="udf-id-cliente" value="1" min="1" style="width: 110px;">
+                </div>
+                <button class="btn" id="btn-lifetime">Consultar UDF</button>
+            </div>
+            <div id="result-lifetime" style="margin-top: 0.75rem;"></div>
+        </div>
+
+        <!-- =================================================== -->
+        <!-- AUDITORÍA (poblada por trigger) -->
+        <!-- =================================================== -->
+        <h2 style="margin-top: 1.5rem;">📜 Bitácora de cambios de estado (Trigger)</h2>
+        <div class="info-panel">
+            <strong>trg_audit_estado_prospecto</strong> — cada vez que un prospecto cambia de estado
+            (por cualquier vía: backend, otro trigger, Swagger…), este trigger inserta una fila en
+            la tabla <code>REPORTE</code> con <code>tipo_reporte = 'Auditoria Estado Prospecto'</code>
+            y los datos del cambio en formato JSON en el campo <code>resultado</code>. La aplicación
+            solo lee — la fuente de verdad es el trigger.
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 1rem;">
+            <div>
+                <label>Filtrar por ID prospecto (opcional)</label>
+                <input type="number" id="audit-id" placeholder="todos" min="1" style="width: 150px;">
+            </div>
+            <button class="btn" id="btn-cargar-auditoria">Recargar bitácora</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Prospecto</th>
+                        <th>Estado anterior</th>
+                        <th>→</th>
+                        <th>Estado nuevo</th>
+                        <th>Puntuación</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="audit-body">
+                    <tr><td colspan="7" class="muted text-center">Cargando…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <div>Asignatura: <strong>Sistemas Transaccionales de Bases de Datos</strong> · Docente: <strong>Ladi Paola Ballen Carrasco</strong></div>
+        <div class="team">Equipo: Hayder Esteban Barrera Pérez · Julian Mateo Artunduaga Gomez · Valery Tatiana Pamplona Gómez</div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/automatizacion.js"></script>
+</body>
+</html>

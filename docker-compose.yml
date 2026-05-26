@@ -1,0 +1,122 @@
+# =====================================================================
+# Stack completo Zimbra CRM con Docker Compose.
+#
+# Servicios:
+#   * db    → MySQL 8.4 con el DDL precargado vía /docker-entrypoint-initdb.d/
+#   * web   → FastAPI con uvicorn --reload (hot reload del código)
+#   * seed  → contenedor one-shot que pobla la BD con 30+ registros por tabla
+#
+# Uso rápido:
+#   docker compose up --build           # arranca todo (db + web + seed)
+#   docker compose up -d db web         # arranca sin re-seedear
+#   docker compose logs -f web          # ver logs del backend
+#   docker compose down                 # parar y borrar contenedores
+#   docker compose down -v              # parar + borrar el volumen MySQL
+#
+# La contraseña de MySQL se toma del archivo .env (variable DB_PASSWORD).
+# Si no existe, se usa "cambiar_esto" como default.
+# =====================================================================
+
+services:
+
+  # --- Base de datos MySQL 8.4 ----------------------------------------
+  db:
+    image: mysql:8.4
+    container_name: zimbra_crm_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-cambiar_esto}
+      # OJO: NO declaramos MYSQL_DATABASE aquí. El script
+      # sql/zimbra_crm.sql ya hace `CREATE DATABASE zimbra_crm;` y si
+      # ambos se ejecutan, MySQL aborta con ERROR 1007 (database exists)
+      # y no crea ninguna tabla.
+    # 3307 en el host porque 3306 ya lo usa el MySQL nativo de Fedora.
+    # El contenedor `web` accede a `db:3306` por la red interna, así que
+    # este mapeo solo importa para conectarte desde el host con un cliente
+    # mysql:  mysql -h 127.0.0.1 -P 3307 -uroot -p
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # El DDL se ejecuta automáticamente en el primer arranque del
+      # contenedor (solo si el volumen está vacío).
+      - ./sql/zimbra_crm.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost",
+             "-uroot", "-p${DB_PASSWORD:-cambiar_esto}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - zimbra_net
+
+  # --- Backend FastAPI + frontend estático ----------------------------
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zimbra_crm_web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-cambiar_esto}
+      DB_NAME: ${DB_NAME:-zimbra_crm}
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    ports:
+      - "8000:8000"
+    # Bind-mount del código para que `uvicorn --reload` recoja cambios
+    # sin tener que reconstruir la imagen.
+    volumes:
+      - ./app:/app/app:ro
+      - ./frontend:/app/frontend:ro
+      - ./scripts:/app/scripts:ro
+      - ./sql:/app/sql:ro
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    networks:
+      - zimbra_net
+
+  # --- Seed one-shot --------------------------------------------------
+  # Corre `python scripts/seed_database.py` una vez tras arrancar la BD.
+  # Si la BD ya tiene datos (>10 prospectos), el script no hace nada.
+  # Para forzar reseed: `docker compose run --rm seed --reset`.
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zimbra_crm_seed
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-cambiar_esto}
+      DB_NAME: ${DB_NAME:-zimbra_crm}
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    entrypoint: ["python", "scripts/seed_database.py"]
+    command: []           # sin args: el script verifica si ya está seedeado
+    restart: "no"
+    networks:
+      - zimbra_net
+
+volumes:
+  mysql_data:
+    name: zimbra_crm_mysql_data
+
+networks:
+  zimbra_net:
+    name: zimbra_crm_net
+    driver: bridge

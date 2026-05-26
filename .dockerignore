@@ -1,0 +1,37 @@
+# Archivos que NO deben entrar en la imagen Docker.
+
+# --- Entorno virtual local ---
+.venv/
+venv/
+env/
+
+# --- Caché Python ---
+__pycache__/
+*.py[cod]
+*.so
+
+# --- Secretos ---
+.env
+.env.local
+
+# --- Git ---
+.git/
+.gitignore
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+
+# --- SO ---
+.DS_Store
+Thumbs.db
+
+# --- Otros ---
+*.log
+logs/
+*.sqlite
+*.db
+
+# Documentación que no se necesita en runtime
+README.md
