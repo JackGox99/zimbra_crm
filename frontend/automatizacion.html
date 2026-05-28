@@ -79,6 +79,28 @@
             </section>
         </div>
 
+        <div class="card mt-1">
+            <div class="label">SP — sp_extender_trial</div>
+            <div class="value" style="font-size: 1.05rem; margin: 0.5rem 0;">Extender periodo de prueba</div>
+            <p class="muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+                Suma días al <code>fecha_fin_prueba</code> del prospecto. El SP valida
+                que el prospecto tenga trial activo y que los días estén entre 1 y 90;
+                si no, lanza <code>SQLSTATE 45000</code> con mensaje legible.
+            </p>
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end; flex-wrap: wrap;">
+                <div>
+                    <label>ID Prospecto</label>
+                    <input type="number" id="sp-ext-id" value="3" min="1" style="width: 110px;">
+                </div>
+                <div>
+                    <label>Días a extender</label>
+                    <input type="number" id="sp-ext-dias" value="15" min="1" max="90" style="width: 110px;">
+                </div>
+                <button class="btn" id="btn-extender-trial">Extender trial</button>
+            </div>
+            <div id="result-extender" style="margin-top: 0.75rem;"></div>
+        </div>
+
         <!-- =================================================== -->
         <!-- FUNCIONES UDF -->
         <!-- =================================================== -->

@@ -20,7 +20,9 @@ async function apiRequest(method, path, body = null) {
             const err = await res.json();
             detail = err.detail || JSON.stringify(err);
         } catch { /* respuesta sin JSON */ }
-        throw new Error(detail);
+        const error = new Error(detail);
+        error.status = res.status;
+        throw error;
     }
     if (res.status === 204) return null;
     return res.json();

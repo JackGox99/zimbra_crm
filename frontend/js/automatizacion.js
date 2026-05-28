@@ -58,6 +58,29 @@ async function limpiarTrials() {
     }
 }
 
+// ----- SP: extender trial -----
+async function extenderTrial() {
+    const id = parseInt($('sp-ext-id').value, 10);
+    const dias = parseInt($('sp-ext-dias').value, 10);
+    const btn = $('btn-extender-trial');
+    btn.disabled = true; btn.textContent = 'Ejecutando…';
+    try {
+        const r = await API.post(`/automatizacion/extender-trial/${id}?dias=${dias}`);
+        setResult('result-extender', `
+            <span class="tx-result-tag commit">CALL OK</span>
+            <strong>Trial de ${escapeHtml(r.nombre)} extendido +${r.dias_extendidos} días.</strong>
+            <div class="mt-1" style="font-size: 0.88rem;">
+                Fecha anterior: ${formatDate(r.fecha_anterior)}<br>
+                Fecha nueva: <strong>${formatDate(r.fecha_nueva)}</strong>
+            </div>
+        `);
+    } catch (e) {
+        setResult('result-extender', `<strong>Error del SP:</strong> ${escapeHtml(e.message)}`, false);
+    } finally {
+        btn.disabled = false; btn.textContent = 'Extender trial';
+    }
+}
+
 // ----- UDF: nivel de interés -----
 async function consultarNivelInteres() {
     const puntuacion = parseInt($('udf-puntuacion').value, 10);
@@ -153,6 +176,7 @@ async function cargarAuditoria() {
 // ----- Bindings -----
 $('btn-reporte-mensual').addEventListener('click', generarReporteMensual);
 $('btn-limpiar-trials').addEventListener('click', limpiarTrials);
+$('btn-extender-trial').addEventListener('click', extenderTrial);
 $('btn-nivel-interes').addEventListener('click', consultarNivelInteres);
 $('btn-dias-restantes').addEventListener('click', consultarDiasRestantes);
 $('btn-lifetime').addEventListener('click', consultarLifetime);

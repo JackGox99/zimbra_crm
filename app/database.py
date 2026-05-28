@@ -30,7 +30,9 @@ from app.config import settings
 # horario para evitar problemas con timeouts del servidor MySQL.
 engine = create_engine(
     settings.database_url,
-    echo=False,           # True imprime cada sentencia SQL — útil para depurar
+    echo=True,            # Imprime cada sentencia SQL (BEGIN, SAVEPOINT, COMMIT,
+                          # ROLLBACK, etc.) en los logs del contenedor. Útil para
+                          # sustentar las transacciones ACID en vivo.
     pool_pre_ping=True,
     pool_recycle=3600,
     future=True,

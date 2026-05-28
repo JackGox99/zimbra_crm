@@ -42,12 +42,79 @@
             padding: 0.1rem 0.4rem;
             border-radius: 4px;
         }
+
+        /* Botones por fila (editar/eliminar) */
+        .row-actions {
+            white-space: nowrap;
+            text-align: right;
+        }
+        .btn-mini {
+            background: transparent;
+            border: 1px solid var(--border, #cbd5e0);
+            padding: 0.25rem 0.5rem;
+            margin-left: 0.25rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            line-height: 1;
+            transition: background 0.15s;
+        }
+        .btn-mini:hover { background: var(--bg, #f7fafc); }
+        .btn-mini.btn-delete:hover {
+            background: #fed7d7;
+            border-color: #f56565;
+        }
+
+        /* Formulario dentro del modal */
+        #form-crud .form-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.85rem;
+        }
+        #form-crud label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            color: var(--text-mid);
+        }
+        #form-crud input,
+        #form-crud select,
+        #form-crud textarea {
+            width: 100%;
+        }
+        /* Toolbar con botón principal */
+        .data-toolbar .toolbar-actions { display: flex; gap: 0.5rem; }
+
+        /* Toast efímero arriba-derecha para COMMIT/ROLLBACK de DELETE */
+        #toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 420px;
+        }
+        .toast {
+            padding: 0.7rem 1rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+            font-size: 0.9rem;
+            opacity: 1;
+            transform: translateX(0);
+            transition: opacity 0.35s, transform 0.35s;
+        }
+        .toast.toast-out {
+            opacity: 0;
+            transform: translateX(20px);
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="title">Zimbra CRM — Explorador de datos</div>
-        <div class="subtitle">Consulta el contenido de las 9 tablas del sistema</div>
+        <div class="subtitle">Consulta y administra el contenido de las 9 tablas del sistema</div>
     </header>
     <nav>
         <a href="/">Inicio</a>
@@ -61,11 +128,12 @@
     <main>
         <h1>Contenido de las tablas</h1>
         <div class="info-panel">
-            <strong>¿Qué hay en cada tabla?</strong>
-            Selecciona una tabla abajo para ver sus registros. Cada chip
-            consume el endpoint REST correspondiente del backend
-            (<code>/api/&lt;recurso&gt;</code>). Usa el buscador para filtrar
-            por cualquier columna visible.
+            <strong>CRUD completo sobre las 9 tablas.</strong>
+            Selecciona una tabla, usa el buscador para filtrar y los botones
+            ✏️ / 🗑️ para editar o eliminar registros. Cada operación llama
+            al endpoint REST correspondiente (<code>POST</code>,
+            <code>PUT</code>, <code>DELETE</code> <code>/api/&lt;recurso&gt;</code>)
+            y respeta las restricciones del DDL (FKs, UNIQUE, CHECKs).
         </div>
 
         <div class="chips" id="tabs"></div>
@@ -73,6 +141,9 @@
         <div class="data-toolbar">
             <div class="data-search">
                 <input type="text" id="search" placeholder="Buscar en las columnas visibles…" style="width: 100%;">
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn green" id="btn-crear">➕ Crear</button>
             </div>
             <div class="data-count" id="count">—</div>
         </div>
@@ -86,6 +157,20 @@
             </table>
         </div>
     </main>
+
+    <!-- Modal genérico Crear / Editar -->
+    <div class="modal-overlay" id="modal-form">
+        <div class="modal" style="max-width: 640px;">
+            <h2 id="modal-title">Crear registro</h2>
+            <div id="modal-body"></div>
+            <div id="modal-resultado"></div>
+            <div class="modal-actions">
+                <button class="btn muted-btn" id="btn-cancelar">Cancelar</button>
+                <button class="btn green"     id="btn-guardar">Guardar</button>
+                <button class="btn"            id="btn-cerrar-modal" hidden>×</button>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div>Asignatura: <strong>Sistemas Transaccionales de Bases de Datos</strong> · Docente: <strong>Ladi Paola Ballen Carrasco</strong></div>
